@@ -1,17 +1,17 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background: #f5f5f5;
   margin: 0;
   padding: 0;
 }
 
 .container {
   max-width: 500px;
-  margin: 40px auto;
-  background-color: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 50px auto;
+  padding: 30px;
+  background: white;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  border-radius: 10px;
 }
 
 h2 {
@@ -19,68 +19,74 @@ h2 {
   color: #333;
 }
 
+form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input[type="text"],
 input[type="email"],
-input[type="password"],
-input[type="text"] {
-  width: 100%;
+input[type="password"] {
+  flex: 1;
   padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
   font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  background-color: #4CAF50;
+  padding: 12px 16px;
+  font-size: 16px;
+  background: #4CAF50;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 16px;
+  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
 }
 
 button:hover {
-  background-color: #45a049;
+  background: #45a049;
 }
 
-ul {
-  list-style-type: none;
+#task-list {
+  list-style: none;
   padding: 0;
-  margin-top: 20px;
 }
 
 li {
-  background-color: #eaffea;
-  border-left: 5px solid #00c853;
-  padding: 12px;
-  margin-bottom: 8px;
-  border-radius: 6px;
+  background: #e9ffe9;
+  border: 2px solid #4CAF50;
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: all 0.3s ease;
   cursor: pointer;
-  transition: all 0.2s ease;
 }
 
 li.completed {
   text-decoration: line-through;
+  background: #ddd;
+  border-color: #999;
   color: #666;
-  background-color: #f0f0f0;
-  border-left: 5px solid #999;
-}
-
-li.tarefa-nova {
-  border-left: 5px solid #00c853;
 }
 
 li button {
-  background-color: #ff4d4d;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 14px;
+  background: red;
   color: white;
-  margin-left: 10px;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+
+li button:hover {
+  background: darkred;
 }
