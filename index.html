@@ -93,43 +93,43 @@
     });
 
     taskForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const texto = taskInput.value.trim();
-      const user = auth.currentUser;
-      if (texto && user) {
-        await db.collection("tarefas").add({
-          texto,
-          uid: user.uid
-        });
-        taskInput.value = "";
-      }
+  e.preventDefault();
+  const texto = taskInput.value.trim();
+  const user = auth.currentUser;
+  if (texto && user) {
+    await db.collection("tarefas").add({
+      texto,
+      uid: user.uid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    taskInput.value = "";
+  }
+});
 
     function carregarTarefas(uid) {
   const q = db.collection("tarefas")
     .where("uid", "==", uid)
-    .orderBy(firebase.firestore.FieldPath.documentId()); // ordenar por ID (ordem de criação)
+    .orderBy("createdAt");
 
   unsubscribe = q.onSnapshot(snapshot => {
     taskList.innerHTML = "";
-    const tarefas = [];
-    snapshot.forEach(doc => tarefas.push({ id: doc.id, ...doc.data() }));
+    snapshot.forEach(doc => {
+      const tarefa = doc.data();
 
-    tarefas.forEach(tarefa => {
       const li = document.createElement("li");
       li.textContent = tarefa.texto;
-      li.classList.add("tarefa-nova"); // adiciona estilo verde
+      li.classList.add("tarefa-nova");
 
       li.addEventListener("click", () => {
         li.classList.toggle("completed");
-        li.classList.remove("tarefa-nova"); // remove verde ao riscar
+        li.classList.remove("tarefa-nova");
       });
 
       const btn = document.createElement("button");
       btn.textContent = "X";
       btn.onclick = (e) => {
         e.stopPropagation();
-        db.collection("tarefas").doc(tarefa.id).delete();
+        db.collection("tarefas").doc(doc.id).delete();
       };
       li.appendChild(btn);
       taskList.appendChild(li);
