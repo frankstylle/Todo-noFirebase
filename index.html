@@ -28,13 +28,12 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+  <!-- Firebase SDK MÓDULO -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, where, orderBy, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  <script>
-    // Configuração Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyApaHzLQH6jmOU6Dv90otvKJHl7c6qXIhc",
       authDomain: "meuteste-3cb55.firebaseapp.com",
@@ -45,12 +44,10 @@
       measurementId: "G-JH8YMB8N8D"
     };
 
-    // Inicializa Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // Referências DOM
     const loginBtn = document.getElementById("login-btn");
     const emailInput = document.getElementById("email");
     const passInput = document.getElementById("password");
@@ -64,7 +61,21 @@
 
     let unsubscribe = null;
 
-    function toggleSections(user) {
+    loginBtn.addEventListener("click", async () => {
+      const email = emailInput.value;
+      const senha = passInput.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+      } catch {
+        await createUserWithEmailAndPassword(auth, email, senha);
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth);
+    });
+
+    onAuthStateChanged(auth, user => {
       if (user) {
         authSection.style.display = "none";
         todoSection.style.display = "block";
@@ -75,21 +86,6 @@
         taskList.innerHTML = "";
         if (unsubscribe) unsubscribe();
       }
-    }
-
-    loginBtn.addEventListener("click", () => {
-      const email = emailInput.value;
-      const senha = passInput.value;
-      auth.signInWithEmailAndPassword(email, senha)
-        .catch(() => auth.createUserWithEmailAndPassword(email, senha));
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      auth.signOut();
-    });
-
-    auth.onAuthStateChanged(user => {
-      toggleSections(user);
     });
 
     taskForm.addEventListener("submit", async (e) => {
@@ -97,25 +93,26 @@
       const texto = taskInput.value.trim();
       const user = auth.currentUser;
       if (texto && user) {
-        await db.collection("tarefas").add({
+        await addDoc(collection(db, "tarefas"), {
           texto,
           uid: user.uid,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          createdAt: serverTimestamp()
         });
         taskInput.value = "";
       }
     });
 
     function carregarTarefas(uid) {
-      const q = db.collection("tarefas")
-        .where("uid", "==", uid)
-        .orderBy("createdAt");
+      const q = query(
+        collection(db, "tarefas"),
+        where("uid", "==", uid),
+        orderBy("createdAt")
+      );
 
-      unsubscribe = q.onSnapshot(snapshot => {
+      unsubscribe = onSnapshot(q, (snapshot) => {
         taskList.innerHTML = "";
-        snapshot.forEach(doc => {
-          const tarefa = doc.data();
-
+        snapshot.forEach(docSnap => {
+          const tarefa = docSnap.data();
           const li = document.createElement("li");
           li.textContent = tarefa.texto;
           li.classList.add("tarefa-nova");
@@ -129,7 +126,7 @@
           btn.textContent = "X";
           btn.onclick = (e) => {
             e.stopPropagation();
-            db.collection("tarefas").doc(doc.id).delete();
+            deleteDoc(doc(db, "tarefas", docSnap.id));
           };
           li.appendChild(btn);
           taskList.appendChild(li);
