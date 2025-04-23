@@ -106,29 +106,36 @@
     });
 
     function carregarTarefas(uid) {
-      const q = db.collection("tarefas").where("uid", "==", uid);
-      unsubscribe = q.onSnapshot(snapshot => {
-        taskList.innerHTML = "";
-        snapshot.forEach(doc => {
-          const li = document.createElement("li");
-li.textContent = doc.data().texto;
+  const q = db.collection("tarefas")
+    .where("uid", "==", uid)
+    .orderBy(firebase.firestore.FieldPath.documentId()); // ordenar por ID (ordem de criação)
 
-// RISCAR ao clicar
-li.addEventListener("click", () => {
-  li.classList.toggle("completed");
-});
+  unsubscribe = q.onSnapshot(snapshot => {
+    taskList.innerHTML = "";
+    const tarefas = [];
+    snapshot.forEach(doc => tarefas.push({ id: doc.id, ...doc.data() }));
 
-const btn = document.createElement("button");
-btn.textContent = "X";
-btn.onclick = (e) => {
-  e.stopPropagation(); // evita ativar o riscar ao clicar no botão
-  db.collection("tarefas").doc(doc.id).delete();
-};
-li.appendChild(btn);
-          taskList.appendChild(li);
-        });
+    tarefas.forEach(tarefa => {
+      const li = document.createElement("li");
+      li.textContent = tarefa.texto;
+      li.classList.add("tarefa-nova"); // adiciona estilo verde
+
+      li.addEventListener("click", () => {
+        li.classList.toggle("completed");
+        li.classList.remove("tarefa-nova"); // remove verde ao riscar
       });
-    }
+
+      const btn = document.createElement("button");
+      btn.textContent = "X";
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        db.collection("tarefas").doc(tarefa.id).delete();
+      };
+      li.appendChild(btn);
+      taskList.appendChild(li);
+    });
+  });
+}
   </script>
 </body>
 </html>
