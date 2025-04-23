@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To Do Firebase</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Minhas Tarefas</h1>
+    <form id="task-form">
+      <input type="text" id="task-input" placeholder="Nova tarefa" required />
+      <button type="submit">Adicionar</button>
+    </form>
+    <ul id="task-list"></ul>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    // Firebase Config (substitua pelos dados do seu projeto!)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+apiKey: "AIzaSyApaHzLQH6jmOU6Dv90otvKJHl7c6qXIhc",
+authDomain: "meuteste-3cb55.firebaseapp.com",
+projectId: "meuteste-3cb55",
+storageBucket: "meuteste-3cb55.firebasestorage.app",
+messagingSenderId: "417601606437",
+appId: "1:417601606437:web:912b5b39dec3a1cb0cc0cc",
+measurementId: "G-JH8YMB8N8D"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const taskForm = document.getElementById("task-form");
+    const taskInput = document.getElementById("task-input");
+    const taskList = document.getElementById("task-list");
+    const tasksCol = collection(db, "tarefas");
+
+    taskForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (taskInput.value.trim() !== "") {
+        await addDoc(tasksCol, { texto: taskInput.value });
+        taskInput.value = "";
+      }
+    });
+
+    onSnapshot(tasksCol, (snapshot) => {
+      taskList.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const li = document.createElement("li");
+        li.textContent = docSnap.data().texto;
+
+        const btn = document.createElement("button");
+        btn.textContent = "X";
+        btn.onclick = () => deleteDoc(doc(db, "tarefas", docSnap.id));
+        li.appendChild(btn);
+
+        taskList.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
