@@ -69,6 +69,7 @@ li.completed {
   color: gray;
   border: 2px solid lawngreen;
   background: rgb(0, 455, 255);
+  font-weight: bold;
 }
 
 li.completed button {
